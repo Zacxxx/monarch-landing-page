@@ -139,9 +139,9 @@ const NexusSection: React.FC<NexusSectionProps> = ({ id }) => {
         </div>
         
         {/* Advanced Bento Grid Layout */}
-        <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-6 gap-6 sm:gap-8 auto-rows-fr">
-          {/* Hero Card - Full Width on Large, Spans 2 columns on Medium */}
-          <div className="md:col-span-4 lg:col-span-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 auto-rows-fr max-w-6xl mx-auto">
+          {/* Hero Card - Spans 2 columns on medium, 3 on large */}
+          <div className="md:col-span-2 lg:col-span-3">
             <StepCard
               icon={stepsData[0].icon}
               title={stepsData[0].title}
@@ -150,8 +150,8 @@ const NexusSection: React.FC<NexusSectionProps> = ({ id }) => {
             />
           </div>
           
-          {/* Secondary Cards - Two Columns */}
-          <div className="md:col-span-2 lg:col-span-3">
+          {/* Secondary Cards - Single column each */}
+          <div className="md:col-span-1 lg:col-span-1">
             <StepCard
               icon={stepsData[1].icon}
               title={stepsData[1].title}
@@ -159,7 +159,7 @@ const NexusSection: React.FC<NexusSectionProps> = ({ id }) => {
             />
           </div>
           
-          <div className="md:col-span-2 lg:col-span-3">
+          <div className="md:col-span-1 lg:col-span-1">
             <StepCard
               icon={stepsData[2].icon}
               title={stepsData[2].title}
@@ -167,8 +167,8 @@ const NexusSection: React.FC<NexusSectionProps> = ({ id }) => {
             />
           </div>
           
-          {/* Featured Card - Large Width */}
-          <div className="md:col-span-4 lg:col-span-4">
+          {/* Featured Card - Single column */}
+          <div className="md:col-span-1 lg:col-span-1">
             <StepCard
               icon={stepsData[3].icon}
               title={stepsData[3].title}
@@ -177,22 +177,21 @@ const NexusSection: React.FC<NexusSectionProps> = ({ id }) => {
             />
           </div>
           
-          {/* Support Cards - Compact */}
-          <div className="md:col-span-2 lg:col-span-2">
-            <div className="grid grid-cols-1 gap-6">
-              <StepCard
-                icon={stepsData[4].icon}
-                title={stepsData[4].title}
-                description={stepsData[4].description}
-                className="min-h-[280px]"
-              />
-              <StepCard
-                icon={stepsData[5].icon}
-                title={stepsData[5].title}
-                description={stepsData[5].description}
-                className="min-h-[280px]"
-              />
-            </div>
+          {/* Support Cards - Each takes one column */}
+          <div className="md:col-span-1 lg:col-span-1">
+            <StepCard
+              icon={stepsData[4].icon}
+              title={stepsData[4].title}
+              description={stepsData[4].description}
+            />
+          </div>
+          
+          <div className="md:col-span-1 lg:col-span-1">
+            <StepCard
+              icon={stepsData[5].icon}
+              title={stepsData[5].title}
+              description={stepsData[5].description}
+            />
           </div>
         </div>
       </div>
