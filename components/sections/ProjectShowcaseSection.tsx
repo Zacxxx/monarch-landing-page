@@ -17,14 +17,17 @@ const ProjectShowcaseSection: React.FC<ProjectShowcaseSectionProps> = ({ id }) =
         </h2>
         <div className="grid md:grid-cols-2 gap-8 sm:gap-12 items-center">
           <div className="relative aspect-video bg-secondary rounded-lg overflow-hidden shadow-2xl group">
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-accent/10 opacity-75 group-hover:opacity-100 transition-opacity duration-500"></div>
-            <div className="absolute inset-0 flex items-center justify-center">
-              <svg className="w-16 h-16 text-primary opacity-50 group-hover:opacity-100 group-hover:scale-110 transition-all duration-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
-             <p className="absolute bottom-4 left-4 text-xs text-muted-foreground group-hover:text-accent transition-colors">Monarch Innovations / Project Alpha Preview</p>
+            <video 
+              className="w-full h-full object-cover"
+              controls
+              preload="metadata"
+              poster="/logo.png"
+            >
+              <source src="/alpha.mp4" type="video/mp4" />
+              Your browser does not support the video tag.
+            </video>
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-accent/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
+            <p className="absolute bottom-4 left-4 text-xs text-muted-foreground group-hover:text-accent transition-colors bg-black/50 px-2 py-1 rounded">Monarch Innovations / Project Alpha Preview</p>
           </div>
           <div>
             <p className="text-lg sm:text-xl text-foreground mb-4 leading-relaxed">

@@ -27,7 +27,7 @@ const AlphaPage: React.FC = () => {
           
           <div className="relative z-10 max-w-6xl mx-auto px-4 py-16 text-center">
             <div className="mb-6">
-              <img src="https://via.placeholder.com/200x60/00B050/FFFFFF?text=CREDIT+AGRICOLE" alt="Crédit Agricole" className="h-12 mx-auto mb-4" />
+              <img src="/logo-ca.PNG" alt="Crédit Agricole" className="h-12 mx-auto mb-4 object-contain" />
               <div className="inline-block bg-green-100 text-green-800 px-4 py-2 rounded-full text-sm font-medium mb-6">
                 PROJECT ALPHA - 131 ans d'expertise + IA
               </div>
