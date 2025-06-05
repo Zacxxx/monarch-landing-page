@@ -44,104 +44,77 @@
 
       /* For explicit light/dark mode colors if needed by theme config */
       --bg-light: 210 40% 98%;
-      --text-light: 220 15% 8%;
-      --bg-dark: 224 71% 4%;
-      --text-dark: 210 20% 98%;
+      --bg-dark: 220 25% 4%;
     }
 
-    html {
-      scroll-behavior: smooth;
+    * {
+      box-sizing: border-box;
     }
 
     body {
-      background-color: hsl(var(--background));
-      color: hsl(var(--foreground)); /* Default text color */
       font-family: var(--font-outfit);
-      overflow-x: hidden; /* Prevent horizontal scroll from animations */
+      background-color: hsl(var(--background));
+      color: hsl(var(--foreground));
+      margin: 0;
+      line-height: 1.5;
     }
 
     .font-header {
       font-family: var(--font-outfit);
     }
 
-    /* Custom scrollbar for light theme */
-    ::-webkit-scrollbar {
-      width: 10px;
-    }
-    ::-webkit-scrollbar-track {
-      background: hsl(var(--secondary) / 0.5); /* Lighter track */
-    }
-    ::-webkit-scrollbar-thumb {
-      background: hsl(var(--primary));
-      border-radius: 5px;
-      border: 2px solid hsl(var(--secondary) / 0.5);
-    }
-    ::-webkit-scrollbar-thumb:hover {
-      background: hsl(var(--primary) / 0.8);
+    /* Global animations */
+    @keyframes gentleFloat {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-10px) rotate(2deg); }
     }
 
-    /* Base Scroll Animation Styles */
-    .scroll-animate {
-      opacity: 0;
-      transition-property: opacity, transform;
-      transition-duration: 0.6s; /* Default duration */
-      transition-timing-function: cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Playful but quick */
+    @keyframes slowPulse {
+      0%, 100% { opacity: 0.6; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.02); }
     }
 
-    .scroll-animate.is-visible {
-      opacity: 1;
-      transform: none !important; /* Override initial transform */
+    /* Void Animation */
+    .bg-anim-void {
+      background: linear-gradient(-45deg, hsl(var(--background)), hsl(var(--secondary)/0.5), hsl(var(--accent)/0.1), hsl(var(--background)));
+      background-size: 400% 400%;
+      animation: gradientShift 15s ease infinite;
     }
 
-    .scroll-animate-fade-in {
-      /* opacity already 0 by .scroll-animate */
-    }
-    
-    .scroll-animate-slide-up {
-      transform: translateY(40px);
-    }
-    .scroll-animate-slide-up.fast {
-       transform: translateY(50px); /* Adjusted for hyper modern feel */
-       transition-duration: 0.4s;
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
     }
 
-
-    .scroll-animate-slide-down {
-      transform: translateY(-40px);
+    .void-text-effect {
+      text-shadow: 0 0 20px hsl(var(--primary)/0.3);
     }
 
-    .scroll-animate-slide-left {
-      transform: translateX(50px);
-    }
-    
-    .scroll-animate-slide-right {
-      transform: translateX(-50px);
+    /* Project Showcase Animation */
+    .bg-anim-project-showcase {
+      background: hsl(var(--background));
+      position: relative;
     }
 
-    .scroll-animate-scale-up {
-      transform: scale(0.9);
+    .bg-anim-project-showcase::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: 
+        linear-gradient(90deg, transparent, hsl(var(--primary)/0.05), transparent),
+        radial-gradient(circle at 20% 20%, hsl(var(--accent)/0.1) 0%, transparent 30%);
+      animation: showcaseSweep 8s ease-in-out infinite;
+      z-index: 0;
     }
-    
-    .scroll-animate-delay-100 { transition-delay: 0.1s !important; }
-    .scroll-animate-delay-200 { transition-delay: 0.2s !important; }
-    .scroll-animate-delay-300 { transition-delay: 0.3s !important; }
-    .scroll-animate-delay-400 { transition-delay: 0.4s !important; }
-    .scroll-animate-delay-500 { transition-delay: 0.5s !important; }
 
+    @keyframes showcaseSweep {
+      0%, 100% { opacity: 0.5; transform: translateX(-100%); }
+      50% { opacity: 1; transform: translateX(100%); }
+    }
   </style>
-<script type="importmap">
-{
-  "imports": {
-    "react-dom/": "https://esm.sh/react-dom@19.1.0/",
-    "react/": "https://esm.sh/react@19.1.0/",
-    "react": "https://esm.sh/react@19.1.0",
-    "@/": "./"
-  }
-}
-</script>
-<link rel="stylesheet" href="/index.css">
 </head>
-<body class="antialiased">
+<body>
   <div id="root"></div>
   <script type="module" src="/index.tsx"></script>
 </body>

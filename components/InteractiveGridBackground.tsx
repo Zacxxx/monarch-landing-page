@@ -1,5 +1,4 @@
-
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 
 const TILE_SIZE = 20; // px
 const HOVER_BORDER_WIDTH = '2px';
@@ -65,6 +64,13 @@ interface IdleState {
   duration: number; 
   progress: number; 
 }
+
+interface ApotheosisState {
+  color: string; 
+  progressRatio: number; 
+  char?: string;
+}
+
 interface TileData {
   id: string;
   row: number;
@@ -72,34 +78,64 @@ interface TileData {
   currentColor: string | null;
   isHovered: boolean;
   idle: IdleState;
-  apotheosisState?: { color: string; progressRatio: number; char?: string; };
+  apotheosisState?: ApotheosisState;
 }
 
 interface InteractiveGridBackgroundProps {
   triggerApotheosis?: number; 
 }
 
+// Debounce function for resize events
+const debounce = (func: Function, wait: number) => {
+  let timeout: NodeJS.Timeout;
+  return function executedFunction(...args: any[]) {
+    const later = () => {
+      clearTimeout(timeout);
+      func(...args);
+    };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
+};
+
 const InteractiveGridBackground: React.FC<InteractiveGridBackgroundProps> = ({ triggerApotheosis = 0 }) => {
   const [grid, setGrid] = useState<TileData[][]>([]);
   const [waveOrigin, setWaveOrigin] = useState<{ row: number; col: number; startColor: string } | null>(null);
   const [currentWaveRadius, setCurrentWaveRadius] = useState(0);
+  const [isApotheosisActive, setIsApotheosisActive] = useState(false);
+  
   const containerRef = useRef<HTMLDivElement>(null);
   const idleAnimationIdRef = useRef<number>();
-  const waveTimeoutIdRef = useRef<number>();
+  const waveTimeoutIdRef = useRef<NodeJS.Timeout>();
   const waveAnimationIdRef = useRef<number>(); 
   const apotheosisAnimationIdRef = useRef<number>();
   const apotheosisStartTimeRef = useRef<number>(0);
-  const [isApotheosisActive, setIsApotheosisActive] = useState(false);
+  const gridDimensionsRef = useRef<{ numRows: number; numCols: number }>({ numRows: 0, numCols: 0 });
 
+  // Memoized grid dimensions calculation
+  const calculateGridDimensions = useCallback(() => {
+    if (!containerRef.current) return { numRows: 0, numCols: 0 };
+    const { width, height } = containerRef.current.getBoundingClientRect();
+    return {
+      numCols: Math.ceil(width / TILE_SIZE),
+      numRows: Math.ceil(height / TILE_SIZE)
+    };
+  }, []);
 
   const initializeGrid = useCallback(() => {
-    if (!containerRef.current) return;
-    const { width, height } = containerRef.current.getBoundingClientRect();
-    const numCols = Math.ceil(width / TILE_SIZE);
-    const numRows = Math.ceil(height / TILE_SIZE);
+    const dimensions = calculateGridDimensions();
+    if (dimensions.numRows === 0 || dimensions.numCols === 0) return;
     
-    const newGrid: TileData[][] = Array.from({ length: numRows }, (_, r) =>
-      Array.from({ length: numCols }, (_, c) => ({
+    // Only recreate grid if dimensions changed
+    if (gridDimensionsRef.current.numRows === dimensions.numRows && 
+        gridDimensionsRef.current.numCols === dimensions.numCols) {
+      return;
+    }
+    
+    gridDimensionsRef.current = dimensions;
+    
+    const newGrid: TileData[][] = Array.from({ length: dimensions.numRows }, (_, r) =>
+      Array.from({ length: dimensions.numCols }, (_, c) => ({
         id: `tile-${r}-${c}`,
         row: r,
         col: c,
@@ -109,30 +145,40 @@ const InteractiveGridBackground: React.FC<InteractiveGridBackgroundProps> = ({ t
       }))
     );
     setGrid(newGrid);
-  }, []);
+  }, [calculateGridDimensions]);
+
+  // Debounced resize handler
+  const debouncedInitializeGrid = useMemo(
+    () => debounce(initializeGrid, 150),
+    [initializeGrid]
+  );
 
   useEffect(() => {
     initializeGrid();
-    window.addEventListener('resize', initializeGrid);
+    window.addEventListener('resize', debouncedInitializeGrid);
     return () => {
-      window.removeEventListener('resize', initializeGrid);
+      window.removeEventListener('resize', debouncedInitializeGrid);
       if (idleAnimationIdRef.current) cancelAnimationFrame(idleAnimationIdRef.current);
       if (waveTimeoutIdRef.current) clearTimeout(waveTimeoutIdRef.current);
       if (waveAnimationIdRef.current) cancelAnimationFrame(waveAnimationIdRef.current);
       if (apotheosisAnimationIdRef.current) cancelAnimationFrame(apotheosisAnimationIdRef.current);
     }
-  }, [initializeGrid]);
+  }, [initializeGrid, debouncedInitializeGrid]);
 
-  // Apotheosis Trigger
+  // Optimized apotheosis effect
   useEffect(() => {
     if (triggerApotheosis > 0 && !isApotheosisActive) { 
         setIsApotheosisActive(true);
         
+        // Clean up existing animations
         if (waveTimeoutIdRef.current) clearTimeout(waveTimeoutIdRef.current);
         if (waveAnimationIdRef.current) cancelAnimationFrame(waveAnimationIdRef.current);
         setWaveOrigin(null);
         
-        setGrid(prevGrid => prevGrid.map(row => row.map(tile => ({ ...tile, currentColor: null }))));
+        // Clear grid more efficiently
+        setGrid(prevGrid => prevGrid.map(row => 
+          row.map(tile => ({ ...tile, currentColor: null }))
+        ));
 
         apotheosisStartTimeRef.current = performance.now();
 
@@ -141,8 +187,9 @@ const InteractiveGridBackground: React.FC<InteractiveGridBackgroundProps> = ({ t
             
             if (elapsedTime >= APOTHEOSIS_DURATION_MS) {
                 setIsApotheosisActive(false);
-                setGrid(g => g.map(r => r.map(t => ({ ...t, apotheosisState: undefined, currentColor: null }))) );
-                if (apotheosisAnimationIdRef.current) cancelAnimationFrame(apotheosisAnimationIdRef.current);
+                setGrid(prevGrid => prevGrid.map(row => 
+                  row.map(tile => ({ ...tile, apotheosisState: undefined, currentColor: null }))
+                ));
                 return;
             }
 
@@ -174,25 +221,36 @@ const InteractiveGridBackground: React.FC<InteractiveGridBackgroundProps> = ({ t
     }
   }, [triggerApotheosis, isApotheosisActive]);
 
-
-  // Idle Animations Manager
+  // Optimized idle animations with reduced frequency
   useEffect(() => {
     if (isApotheosisActive) { 
         if(idleAnimationIdRef.current) cancelAnimationFrame(idleAnimationIdRef.current);
         return;
     }
 
-    const updateIdleAnimations = (_timestamp?: DOMHighResTimeStamp) => {
+    let frameCount = 0;
+    const updateIdleAnimations = () => {
+      frameCount++;
+      // Reduce update frequency for better performance
+      if (frameCount % 2 !== 0) {
+        idleAnimationIdRef.current = requestAnimationFrame(updateIdleAnimations);
+        return;
+      }
+
       setGrid(prevGrid => {
         if (!prevGrid.length) return prevGrid;
-        return prevGrid.map(row => row.map(tile => {
+        
+        // Only update tiles that need updating
+        let hasChanges = false;
+        const newGrid = prevGrid.map(row => row.map(tile => {
           let newIdle = { ...tile.idle };
 
           if (newIdle.progress >= newIdle.duration && newIdle.type !== 'none') {
             newIdle = { type: 'none', progress: 0, duration: 0 }; 
+            hasChanges = true;
           }
           
-          if (newIdle.type === 'none' && Math.random() < 0.0005) { 
+          if (newIdle.type === 'none' && Math.random() < 0.0003) { // Reduced frequency
             const randType = Math.random();
             if (randType < 0.4) { 
               newIdle = { 
@@ -217,11 +275,16 @@ const InteractiveGridBackground: React.FC<InteractiveGridBackgroundProps> = ({ t
                 progress: 0,
               }
             }
+            hasChanges = true;
           } else if (newIdle.type !== 'none') {
             newIdle.progress = newIdle.progress + 1;
+            hasChanges = true;
           }
-          return { ...tile, idle: newIdle };
+          
+          return newIdle !== tile.idle ? { ...tile, idle: newIdle } : tile;
         }));
+        
+        return hasChanges ? newGrid : prevGrid;
       });
       idleAnimationIdRef.current = requestAnimationFrame(updateIdleAnimations);
     };
@@ -234,11 +297,12 @@ const InteractiveGridBackground: React.FC<InteractiveGridBackgroundProps> = ({ t
     };
   }, [isApotheosisActive]); 
 
-
-  const handleTileClick = (row: number, col: number) => {
+  const handleTileClick = useCallback((row: number, col: number) => {
     if (isApotheosisActive) return; 
 
-    setGrid(prevGrid => prevGrid.map(r => r.map(tile => ({ ...tile, currentColor: null }))));
+    setGrid(prevGrid => prevGrid.map(rowTiles => 
+      rowTiles.map(tile => ({ ...tile, currentColor: null }))
+    ));
 
     const clickedTile = grid[row]?.[col];
     const startColor = clickedTile?.isHovered ? HOVER_TILE_COLOR : getRandomArrayElement(waveColors);
@@ -248,13 +312,17 @@ const InteractiveGridBackground: React.FC<InteractiveGridBackgroundProps> = ({ t
 
     setWaveOrigin({ row, col, startColor });
     setCurrentWaveRadius(0); 
-  };
+  }, [grid, isApotheosisActive]);
   
-  const handleTileHover = (row: number, col: number, isHovering: boolean) => {
+  const handleTileHover = useCallback((row: number, col: number, isHovering: boolean) => {
     if (isApotheosisActive) return; 
     setGrid(prevGrid => {
       if (!prevGrid[row] || !prevGrid[row][col]) return prevGrid;
-      const newGrid = prevGrid.map(r => r.map(t => ({ ...t })));
+      
+      const currentTile = prevGrid[row][col];
+      if (currentTile.isHovered === isHovering) return prevGrid; // No change needed
+      
+      const newGrid = prevGrid.map(rowTiles => rowTiles.map(tile => ({ ...tile })));
       newGrid[row][col].isHovered = isHovering;
       
       if (isHovering) {
@@ -268,26 +336,27 @@ const InteractiveGridBackground: React.FC<InteractiveGridBackgroundProps> = ({ t
       }
       return newGrid;
     });
-  };
+  }, [isApotheosisActive]);
 
+  // Optimized wave propagation
   useEffect(() => {
     if (!waveOrigin || isApotheosisActive) { 
         if(waveAnimationIdRef.current) cancelAnimationFrame(waveAnimationIdRef.current);
         return;
     }
 
-    const propagate = (_timestamp?: DOMHighResTimeStamp) => {
+    const propagate = () => {
       if (currentWaveRadius > WAVE_MAX_RADIUS) {
         setWaveOrigin(null); 
-        setGrid(prevGrid => prevGrid.map(r => r.map(tile => ({ ...tile, currentColor: null })))); 
-        if (waveAnimationIdRef.current) cancelAnimationFrame(waveAnimationIdRef.current);
+        setGrid(prevGrid => prevGrid.map(rowTiles => 
+          rowTiles.map(tile => ({ ...tile, currentColor: null }))
+        )); 
         return;
       }
 
       const baseColorParts = parseHslString(waveOrigin.startColor);
       if (!baseColorParts) {
         setWaveOrigin(null);
-        if (waveAnimationIdRef.current) cancelAnimationFrame(waveAnimationIdRef.current);
         return;
       }
 
@@ -311,7 +380,7 @@ const InteractiveGridBackground: React.FC<InteractiveGridBackgroundProps> = ({ t
     
     waveTimeoutIdRef.current = setTimeout(() => {
         waveAnimationIdRef.current = requestAnimationFrame(propagate);
-    }, WAVE_PROPAGATION_DELAY) as unknown as number; 
+    }, WAVE_PROPAGATION_DELAY);
 
     return () => { 
       if (waveAnimationIdRef.current) cancelAnimationFrame(waveAnimationIdRef.current);
@@ -319,16 +388,9 @@ const InteractiveGridBackground: React.FC<InteractiveGridBackgroundProps> = ({ t
     };
   }, [waveOrigin, currentWaveRadius, isApotheosisActive]); 
 
-  return (
-    <div
-      ref={containerRef}
-      className="absolute inset-0 grid overflow-hidden z-[-10]" 
-      style={{
-        gridTemplateColumns: `repeat(auto-fill, minmax(${TILE_SIZE}px, 1fr))`,
-        gridTemplateRows: `repeat(auto-fill, minmax(${TILE_SIZE}px, 1fr))`,
-      }}
-    >
-      {grid.flat().map((tile) => {
+  // Memoized grid rendering to reduce re-renders
+  const gridElements = useMemo(() => {
+    return grid.flat().map((tile) => {
         let backgroundColor = 'transparent';
         let borderColor = 'hsl(var(--border)/0.1)'; 
         let currentBorderWidth = '1px';
@@ -372,7 +434,6 @@ const InteractiveGridBackground: React.FC<InteractiveGridBackgroundProps> = ({ t
             }
         }
 
-
         return (
           <div
             key={tile.id}
@@ -400,7 +461,19 @@ const InteractiveGridBackground: React.FC<InteractiveGridBackgroundProps> = ({ t
             }
           </div>
         );
-      })}
+      });
+  }, [grid, isApotheosisActive, handleTileHover, handleTileClick]);
+
+  return (
+    <div
+      ref={containerRef}
+      className="absolute inset-0 grid overflow-hidden z-[-10]" 
+      style={{
+        gridTemplateColumns: `repeat(auto-fill, minmax(${TILE_SIZE}px, 1fr))`,
+        gridTemplateRows: `repeat(auto-fill, minmax(${TILE_SIZE}px, 1fr))`,
+      }}
+    >
+      {gridElements}
     </div>
   );
 };
