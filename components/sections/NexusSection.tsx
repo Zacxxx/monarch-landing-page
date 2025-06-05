@@ -118,9 +118,25 @@ const NexusSection: React.FC<NexusSectionProps> = ({ id }) => {
         <h2 className="font-header font-extrabold tracking-tighter leading-none text-6xl sm:text-7xl md:text-8xl lg:text-[9rem] xl:text-[11rem] text-primary nexus-pulse-glow mb-10 sm:mb-16">
           NEXUS
         </h2>
-        <p className="text-xl sm:text-2xl text-foreground mb-12 sm:mb-16 leading-relaxed max-w-4xl mx-auto">
+        <p className="text-xl sm:text-2xl text-foreground mb-8 leading-relaxed max-w-4xl mx-auto">
           Monarch Nexus is our integrated AI development and deployment platform, empowering your enterprise to harness the full potential of artificial intelligence with precision and scale.
         </p>
+        
+        {/* CTA Button */}
+        <div className="mb-12 sm:mb-16">
+          <a
+            href="https://social-post-genie-628035322183.us-west1.run.app"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center px-8 py-4 bg-primary text-primary-foreground font-semibold rounded-lg hover:bg-primary/90 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
+          >
+            <span>Try Our AI Demo</span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="ml-2">
+              <path d="M7 7h10v10"></path>
+              <path d="M7 17L17 7"></path>
+            </svg>
+          </a>
+        </div>
         
         {/* Advanced Bento Grid Layout */}
         <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-6 gap-6 sm:gap-8 auto-rows-fr">

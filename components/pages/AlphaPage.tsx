@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import Header from '../Header';
 import Footer from '../Footer';
 
 const AlphaPage: React.FC = () => {
@@ -18,8 +17,6 @@ const AlphaPage: React.FC = () => {
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
-      <Header />
-      
       <main className="flex-grow">
         {/* Hero Section */}
         <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-green-50 via-white to-green-100">
@@ -27,7 +24,7 @@ const AlphaPage: React.FC = () => {
           
           <div className="relative z-10 max-w-6xl mx-auto px-4 py-16 text-center">
             <div className="mb-6">
-              <img src="/logo-ca.PNG" alt="Crédit Agricole" className="h-12 mx-auto mb-4 object-contain" />
+              <img src="/logo-ca.PNG" alt="Crédit Agricole" className="h-24 sm:h-32 md:h-40 lg:h-48 mx-auto mb-8 object-contain" />
               <div className="inline-block bg-green-100 text-green-800 px-4 py-2 rounded-full text-sm font-medium mb-6">
                 PROJECT ALPHA - 131 ans d'expertise + IA
               </div>
