@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Monarch | Quantum Leap</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles/animations.css">
+  <style>
+    :root {
+      --background: 210 40% 98%; /* Very Light Grey */
+      --foreground: 220 15% 8%; /* Very Dark Cool Grey, almost Black for main text */
+
+      --primary: 260 70% 58%;    /* Vibrant Regal Purple */
+      --primary-foreground: 210 40% 98%; /* Very Light Grey (for text on primary) */
+
+      --secondary: 210 30% 92%;   /* Light Cool Grey */
+      --secondary-foreground: 220 25% 20%; /* Darker Grey (for text on secondary) */
+
+      --accent: 180 65% 50%;     /* Bright Cyan/Teal */
+      --accent-foreground: 224 71% 4%;   /* Dark Navy for text on accent */
+
+      --muted: 220 20% 70%;      /* Muted Grey (lighter) */
+      --muted-foreground: 220 15% 45%; /* Adjusted Muted Grey for sub-text */
+
+      --border: 220 20% 88%;     /* Subtle Border (lighter) */
+      --input: 220 20% 95%;      /* Lighter input background */
+      --ring: 260 70% 58%;       /* Primary for focus rings */
+
+      --card: 0 0% 100%;          /* White Card Background */
+      --card-foreground: 220 15% 8%; /* Using new foreground for card text */
+
+      --popover: 0 0% 100%;       /* White Popover Background */
+      --popover-foreground: 220 15% 8%; /* Using new foreground */
+
+      --destructive: 0 60% 50%;  /* Strong Red */
+      --destructive-foreground: 210 40% 98%;
+
+      --radius: 0.75rem;
+      --font-outfit: 'Outfit', 'cursive', sans-serif;
+
+      /* For explicit light/dark mode colors if needed by theme config */
+      --bg-light: 210 40% 98%;
+      --text-light: 220 15% 8%;
+      --bg-dark: 224 71% 4%;
+      --text-dark: 210 20% 98%;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background-color: hsl(var(--background));
+      color: hsl(var(--foreground)); /* Default text color */
+      font-family: var(--font-outfit);
+      overflow-x: hidden; /* Prevent horizontal scroll from animations */
+    }
+
+    .font-header {
+      font-family: var(--font-outfit);
+    }
+
+    /* Custom scrollbar for light theme */
+    ::-webkit-scrollbar {
+      width: 10px;
+    }
+    ::-webkit-scrollbar-track {
+      background: hsl(var(--secondary) / 0.5); /* Lighter track */
+    }
+    ::-webkit-scrollbar-thumb {
+      background: hsl(var(--primary));
+      border-radius: 5px;
+      border: 2px solid hsl(var(--secondary) / 0.5);
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: hsl(var(--primary) / 0.8);
+    }
+
+    /* Base Scroll Animation Styles */
+    .scroll-animate {
+      opacity: 0;
+      transition-property: opacity, transform;
+      transition-duration: 0.6s; /* Default duration */
+      transition-timing-function: cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Playful but quick */
+    }
+
+    .scroll-animate.is-visible {
+      opacity: 1;
+      transform: none !important; /* Override initial transform */
+    }
+
+    .scroll-animate-fade-in {
+      /* opacity already 0 by .scroll-animate */
+    }
+    
+    .scroll-animate-slide-up {
+      transform: translateY(40px);
+    }
+    .scroll-animate-slide-up.fast {
+       transform: translateY(50px); /* Adjusted for hyper modern feel */
+       transition-duration: 0.4s;
+    }
+
+
+    .scroll-animate-slide-down {
+      transform: translateY(-40px);
+    }
+
+    .scroll-animate-slide-left {
+      transform: translateX(50px);
+    }
+    
+    .scroll-animate-slide-right {
+      transform: translateX(-50px);
+    }
+
+    .scroll-animate-scale-up {
+      transform: scale(0.9);
+    }
+    
+    .scroll-animate-delay-100 { transition-delay: 0.1s !important; }
+    .scroll-animate-delay-200 { transition-delay: 0.2s !important; }
+    .scroll-animate-delay-300 { transition-delay: 0.3s !important; }
+    .scroll-animate-delay-400 { transition-delay: 0.4s !important; }
+    .scroll-animate-delay-500 { transition-delay: 0.5s !important; }
+
+  </style>
+<script type="importmap">
+{
+  "imports": {
+    "react-dom/": "https://esm.sh/react-dom@19.1.0/",
+    "react/": "https://esm.sh/react@19.1.0/",
+    "react": "https://esm.sh/react@19.1.0",
+    "@/": "./"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+<body class="antialiased">
+  <div id="root"></div>
+  <script type="module" src="/index.tsx"></script>
+</body>
+</html>
